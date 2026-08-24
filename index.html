@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOX PUNK STUDIO ⚡ RØDECaster Podcast Zine</title>
+  <!-- Google Fonts: Space Grotesk, Righteous, Fredoka, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@700;800&family=Righteous&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="punk-theme">
+
+  <!-- Background Halftone & Psychedelic Aura -->
+  <div class="psychedelic-bg"></div>
+
+  <div class="app-container">
+    
+    <!-- Top Punk Header Banner -->
+    <header class="punk-header">
+      <div class="brand-badge-wrap">
+        <div class="sticker-tape tape-left"></div>
+        <div class="brand-logo-pill">
+          <span class="logo-emoji">🎙️⚡</span>
+          <div class="brand-text">
+            <h1 class="logo-title">VOX<span>PUNK</span></h1>
+            <span class="logo-tag" data-i18n="appSubtitle">★ SCHOOL PODCAST ZINE & AUDIO LAB ★</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hardware Badge (Sticker Style) -->
+      <div class="hardware-sticker" id="hardwareBadgeBtn" title="Click for RØDECaster Setup Guide">
+        <div class="sticker-star">★</div>
+        <div class="hw-info">
+          <span class="hw-name">RØDECASTER DUO</span>
+          <span class="hw-status">2x PODMIC ONLINE 🔥</span>
+        </div>
+      </div>
+
+      <!-- Top Right Controls -->
+      <div class="header-right-tools">
+        <!-- Language Switcher Pills -->
+        <div class="lang-pills">
+          <button class="lang-pill active" data-lang="en" id="langEn">🇬🇧 EN</button>
+          <button class="lang-pill" data-lang="it" id="langIt">🇮🇹 IT</button>
+        </div>
+
+        <!-- Teleprompter Live Mode Toggle -->
+        <button class="btn-punk btn-prompter-pop" id="openTeleprompterBtn">
+          <span class="btn-icon">📺</span>
+          <span data-i18n="teleprompterBtn">ON-AIR PROMPTER</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs (Sticker Bar) -->
+    <nav class="punk-nav">
+      <button class="nav-tab-sticker active tab-pink" data-tab="scriptTab">
+        <span class="tab-num">01</span>
+        <span data-i18n="tabScript">⚡ SCRIPT & CUES</span>
+      </button>
+      <button class="nav-tab-sticker tab-yellow" data-tab="soundboardTab">
+        <span class="tab-num">02</span>
+        <span data-i18n="tabSoundboard">💥 SMART SOUNDBOARD</span>
+      </button>
+      <button class="nav-tab-sticker tab-cyan" data-tab="editorTab">
+        <span class="tab-num">03</span>
+        <span data-i18n="tabEditor">✂️ AUDIO LAB & CUTTER</span>
+      </button>
+      <button class="nav-tab-sticker tab-green" data-tab="exportTab">
+        <span class="tab-num">04</span>
+        <span data-i18n="tabExport">🎨 COVER ART & MASTER</span>
+      </button>
+      <button class="nav-tab-sticker tab-purple" data-tab="guideTab">
+        <span class="tab-num">05</span>
+        <span data-i18n="tabGuide">📖 RØDE MANUAL</span>
+      </button>
+    </nav>
+
+    <!-- Main Workspace -->
+    <main class="punk-main">
+
+      <!-- ================= SECTION 1: SCRIPT & STORYBOARD ================= -->
+      <section class="tab-content active" id="scriptTab">
+        <div class="zine-split">
+          <!-- Left: Script Meta & Controls -->
+          <div class="punk-card script-sidebar-card">
+            <div class="card-pin">📌</div>
+            <div class="card-header-bar bar-pink">
+              <h3 data-i18n="episodeDetailsTitle">★ EPISODE BLUEPRINT</h3>
+            </div>
+            
+            <div class="card-body">
+              <div class="punk-input-group">
+                <label data-i18n="lblEpTitle">EPISODE TITLE</label>
+                <input type="text" id="epTitleInput" class="punk-control" placeholder="e.g. Science Frontiers #1">
+              </div>
+
+              <div class="input-grid-2">
+                <div class="punk-input-group">
+                  <label data-i18n="lblHost1">HOST 1 (PodMic 1)</label>
+                  <input type="text" id="speaker1Input" class="punk-control" value="Teacher / Main Host">
+                </div>
+                <div class="punk-input-group">
+                  <label data-i18n="lblHost2">HOST 2 (PodMic 2)</label>
+                  <input type="text" id="speaker2Input" class="punk-control" value="Student Co-Host">
+                </div>
+              </div>
+
+              <!-- Stats Zine Card -->
+              <div class="stats-zine-box">
+                <div class="stat-pill">
+                  <span class="stat-num" id="scriptWordCount">0</span>
+                  <span class="stat-lbl" data-i18n="lblWords">WORDS</span>
+                </div>
+                <div class="stat-pill">
+                  <span class="stat-num" id="scriptEstDuration">00:00</span>
+                  <span class="stat-lbl" data-i18n="lblEstTime">EST. TIME</span>
+                </div>
+                <div class="stat-pill">
+                  <span class="stat-num" id="scriptCueCount">0</span>
+                  <span class="stat-lbl" data-i18n="lblCues">SFX CUES</span>
+                </div>
+              </div>
+
+              <!-- Templates Quick Actions -->
+              <div class="mt-3">
+                <label class="punk-label" data-i18n="templatesTitle">READY-TO-GO TEMPLATES</label>
+                <div class="d-flex flex-col gap-2">
+                  <button class="btn-punk btn-yellow btn-sm" id="loadEduTemplateBtn" data-i18n="btnTemplateEdu">
+                    🎓 Science & Interview Template
+                  </button>
+                  <button class="btn-punk btn-orange btn-sm" id="loadDebateTemplateBtn" data-i18n="btnTemplateDebate">
+                    🎙️ Student Debate / Storytelling
+                  </button>
+                  <button class="btn-punk btn-white btn-sm" id="clearScriptBtn" data-i18n="btnClearScript">
+                    🗑️ Clear Script
+                  </button>
+                </div>
+              </div>
+
+              <!-- Export Print Actions -->
+              <div class="mt-3 d-flex gap-2">
+                <button class="btn-punk btn-cyan btn-sm flex-1" id="printScriptBtn" data-i18n="btnPrintScript">🖨️ Print Sheet</button>
+                <button class="btn-punk btn-lime btn-sm flex-1" id="exportScriptTxtBtn" data-i18n="btnExportText">📄 Save (.txt)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Interactive Comic Dialogue Blocks -->
+          <div class="punk-card script-editor-card">
+            <div class="card-header-bar bar-yellow d-flex justify-between items-center">
+              <h3 data-i18n="scriptTimelineTitle">★ TIMELINE & DIALOGUE BLOCKS</h3>
+              <div class="d-flex gap-2 flex-wrap">
+                <button class="btn-badge-pop badge-green" id="addBlockSpeaker1">
+                  + <span id="btnSpeaker1Name">Host 1</span>
+                </button>
+                <button class="btn-badge-pop badge-orange" id="addBlockSpeaker2">
+                  + <span id="btnSpeaker2Name">Host 2</span>
+                </button>
+                <button class="btn-badge-pop badge-blue" id="addBlockCue">
+                  + 🔔 <span data-i18n="btnSoundCue">Sound Cue</span>
+                </button>
+                <button class="btn-badge-pop badge-purple" id="addBlockNote">
+                  + 📝 <span data-i18n="btnDirectorNote">Director Note</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Block List Container -->
+            <div class="script-blocks-container" id="scriptBlocksContainer">
+              <!-- Dynamically populated comic blocks -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 2: SMART SOUNDBOARD ================= -->
+      <section class="tab-content" id="soundboardTab">
+        <div class="zine-split soundboard-split">
+          <!-- Left: 6 Physical-like Retro Pop SMART Pads (Spacious & Primary) -->
+          <div class="punk-card pads-main-card">
+            <div class="card-header-bar bar-purple d-flex justify-between items-center">
+              <div>
+                <h3 data-i18n="smartPadsTitle">★ RØDECASTER SMART PADS</h3>
+                <p class="card-sub-text" data-i18n="smartPadsSubtitle">Smash the pads to trigger SFX or download them for your RØDECaster SD card!</p>
+              </div>
+              <span class="status-sticker" data-i18n="liveReadyTag">AUDIO READY ⚡</span>
+            </div>
+
+            <div class="card-body">
+              <!-- 6 Pads Grid with Neon Pop Punch -->
+              <div class="smart-pads-arcade">
+                <!-- Pad 1 -->
+                <div class="arcade-pad pad-neon-green" data-pad="0">
+                  <div class="pad-badge">PAD 01</div>
+                  <div class="pad-emoji">🎺</div>
+                  <div class="pad-title" id="padName0">Podcast Intro Jingle</div>
+                  <div class="pad-actions">
+                    <button class="btn-pad-act" title="Play">▶ PLAY</button>
+                    <button class="btn-pad-act" title="Download for RØDECaster">⬇ SD</button>
+                  </div>
+                </div>
+
+                <!-- Pad 2 -->
+                <div class="arcade-pad pad-neon-orange" data-pad="1">
+                  <div class="pad-badge">PAD 02</div>
+                  <div class="pad-emoji">👏</div>
+                  <div class="pad-title" id="padName1">Crowd Applause</div>
+                  <div class="pad-actions">
+                    <button class="btn-pad-act" title="Play">▶ PLAY</button>
+                    <button class="btn-pad-act" title="Download for RØDECaster">⬇ SD</button>
+                  </div>
+                </div>
+
+                <!-- Pad 3 -->
+                <div class="arcade-pad pad-neon-blue" data-pad="2">
+                  <div class="pad-badge">PAD 03</div>
+                  <div class="pad-emoji">✨</div>
+                  <div class="pad-title" id="padName2">Sparkle Transition</div>
+                  <div class="pad-actions">
+                    <button class="btn-pad-act" title="Play">▶ PLAY</button>
+                    <button class="btn-pad-act" title="Download for RØDECaster">⬇ SD</button>
+                  </div>
+                </div>
+
+                <!-- Pad 4 -->
+                <div class="arcade-pad pad-neon-yellow" data-pad="3">
+                  <div class="pad-badge">PAD 04</div>
+                  <div class="pad-emoji">🥁</div>
+                  <div class="pad-title" id="padName3">Drum Roll & Cymbal</div>
+                  <div class="pad-actions">
+                    <button class="btn-pad-act" title="Play">▶ PLAY</button>
+                    <button class="btn-pad-act" title="Download for RØDECaster">⬇ SD</button>
+                  </div>
+                </div>
+
+                <!-- Pad 5 -->
+                <div class="arcade-pad pad-neon-purple" data-pad="4">
+                  <div class="pad-badge">PAD 05</div>
+                  <div class="pad-emoji">💡</div>
+                  <div class="pad-title" id="padName4">Idea Ding / Chime</div>
+                  <div class="pad-actions">
+                    <button class="btn-pad-act" title="Play">▶ PLAY</button>
+                    <button class="btn-pad-act" title="Download for RØDECaster">⬇ SD</button>
+                  </div>
+                </div>
+
+                <!-- Pad 6 -->
+                <div class="arcade-pad pad-neon-red" data-pad="5">
+                  <div class="pad-badge">PAD 06</div>
+                  <div class="pad-emoji">🎵</div>
+                  <div class="pad-title" id="padName5">Podcast Outro Jingle</div>
+                  <div class="pad-actions">
+                    <button class="btn-pad-act" title="Play">▶ PLAY</button>
+                    <button class="btn-pad-act" title="Download for RØDECaster">⬇ SD</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Master Soundboard Control Bar -->
+              <div class="soundboard-master-strip mt-3">
+                <div class="d-flex items-center gap-3">
+                  <span class="punk-label mb-0" data-i18n="lblPadVolume">MASTER VOL</span>
+                  <input type="range" id="padMasterVolume" min="0" max="1" step="0.05" value="0.85" class="punk-slider">
+                  <span id="padVolDisplay" class="vol-num font-mono">85%</span>
+                </div>
+                <button class="btn-punk btn-white btn-sm" id="stopAllAudioBtn" data-i18n="btnStopAllSounds">⏹ SILENCE ALL</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: SFX Vault & Lo-Fi Groove Box -->
+          <div class="punk-card sfx-vault-card">
+            <div class="card-header-bar bar-cyan">
+              <h3 data-i18n="sfxLibraryTitle">★ SFX VAULT</h3>
+            </div>
+
+            <div class="card-body">
+              <!-- Lo-Fi Ambient Bed Box -->
+              <div class="ambient-groove-box mb-3">
+                <div class="d-flex justify-between items-center mb-2">
+                  <div class="d-flex items-center gap-2">
+                    <span class="groove-icon">📻</span>
+                    <div>
+                      <h4 class="groove-title" data-i18n="bgMusicTitle">Classroom Lo-Fi Background Bed</h4>
+                      <p class="text-xs text-muted" data-i18n="bgMusicDesc">Procedural background groove for spoken segments</p>
+                    </div>
+                  </div>
+                  <button class="btn-punk btn-pink btn-sm" id="toggleAmbientBtn">▶ <span data-i18n="btnPlayBed">Play Bed</span></button>
+                </div>
+                <div class="d-flex items-center gap-2">
+                  <span class="text-xs font-bold">BED VOL:</span>
+                  <input type="range" id="ambientVolume" min="0" max="0.5" step="0.02" value="0.15" class="punk-slider">
+                </div>
+              </div>
+
+              <!-- SFX List -->
+              <div class="sfx-list-box" id="sfxListContainer">
+                <!-- Dynamically generated list -->
+              </div>
+
+              <!-- Custom File Input -->
+              <div class="mt-3">
+                <label class="btn-punk btn-white btn-sm w-100 text-center cursor-pointer">
+                  <input type="file" id="customSfxInput" accept="audio/*" style="display:none;">
+                  <span data-i18n="btnUploadCustomSfx">📁 Import Custom Audio (.wav, .mp3)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 3: AUDIO EDITOR & STITCHER ================= -->
+      <section class="tab-content" id="editorTab">
+        <div class="punk-editor-wrap">
+          <!-- Top Tool Strip -->
+          <div class="punk-card editor-top-strip mb-3">
+            <div class="card-body d-flex justify-between items-center flex-wrap gap-2">
+              <div class="d-flex items-center gap-2 flex-wrap">
+                <!-- USB Source Selector & Record Button -->
+                <div class="usb-record-pod">
+                  <select id="audioDeviceSelect" class="punk-select-mini">
+                    <option value="default">🎙️ RØDECaster Duo (USB-C)</option>
+                  </select>
+                  <button class="btn-punk btn-record-pop" id="recordMicBtn">
+                    <span class="rec-dot"></span>
+                    <span id="recBtnLabel" data-i18n="btnLiveMicRecord">Direct USB Record</span>
+                  </button>
+                </div>
+
+                <!-- 1-Click SD Card Sync -->
+                <button class="btn-punk btn-yellow btn-sm" id="syncSdFolderBtn" data-i18n="btnSyncSdFolder">
+                  ⚡ 1-Click SD Card Auto-Import
+                </button>
+
+                <button class="btn-punk btn-white btn-sm" id="loadDemoAudioBtn" data-i18n="btnLoadDemo">
+                  ✨ Sample Voice
+                </button>
+
+                <!-- Hidden file input -->
+                <input type="file" id="audioFileInput" accept="audio/*" style="display:none;">
+              </div>
+
+              <!-- Transport Controls -->
+              <div class="d-flex items-center gap-3">
+                <button class="btn-transport-pop" id="wavePlayBtn" title="Play / Pause (Space)">
+                  <svg id="playIcon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <svg id="pauseIcon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                </button>
+                <button class="btn-transport-stop" id="waveStopBtn" title="Stop">⏹</button>
+                <span class="time-readout font-mono" id="playbackTimeDisplay">00:00.0 / 00:00.0</span>
+              </div>
+
+              <!-- Zoom Tools -->
+              <div class="d-flex items-center gap-2">
+                <button class="btn-punk btn-white btn-sm" id="zoomOutBtn">−</button>
+                <span class="zoom-tag font-mono" id="zoomLevelText">100%</span>
+                <button class="btn-punk btn-white btn-sm" id="zoomInBtn">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Recordings Drawer (SD Card Takes) -->
+          <div class="punk-card sd-drawer mb-3" id="sdDrawer" style="display:none;">
+            <div class="card-body">
+              <div class="d-flex justify-between items-center mb-2">
+                <h5 class="font-mono text-xs font-bold" data-i18n="sdTakesTitle">📁 RØDECASTER SD CARD RECORDINGS:</h5>
+                <button class="btn-icon-punk" id="closeSdDrawerBtn">✕</button>
+              </div>
+              <div class="sd-takes-list" id="sdTakesList"></div>
+            </div>
+          </div>
+
+          <!-- Pop Waveform Canvas Panel -->
+          <div class="punk-card waveform-card">
+            <div class="card-header-bar bar-cyan d-flex justify-between items-center">
+              <span class="track-tag" id="loadedTrackName" data-i18n="noAudioLoaded">No audio file loaded yet</span>
+              <span class="selection-tag font-mono" id="selectionTimeText">Selection: None</span>
+            </div>
+
+            <div class="card-body">
+              <div class="canvas-pop-wrapper" id="waveformWrapper">
+                <canvas id="waveformCanvas" width="1200" height="200"></canvas>
+                <div class="playhead" id="wavePlayhead"></div>
+                <div class="selection-overlay" id="waveSelectionOverlay"></div>
+              </div>
+
+              <!-- Comic Editing Action Buttons -->
+              <div class="editing-bar-pop mt-3">
+                <div class="d-flex gap-2 flex-wrap">
+                  <button class="btn-punk btn-pink btn-sm" id="cutSelectionBtn" data-i18n="btnCutSelection">
+                    ✂️ Cut Selection
+                  </button>
+                  <button class="btn-punk btn-yellow btn-sm" id="silenceSelectionBtn" data-i18n="btnSilenceSelection">
+                    🔇 Silence Selection
+                  </button>
+                  <button class="btn-punk btn-cyan btn-sm" id="trimToSelectionBtn" data-i18n="btnTrimToSelection">
+                    📐 Keep Only Selection
+                  </button>
+                  <button class="btn-punk btn-white btn-sm" id="undoEditBtn" data-i18n="btnUndo">
+                    ↩️ Undo
+                  </button>
+                </div>
+
+                <!-- Instant Super Enhancers -->
+                <div class="d-flex gap-2 flex-wrap">
+                  <button class="btn-punk btn-lime btn-sm" id="autoLevelBtn" data-i18n="btnAutoLevel">
+                    ⚡ Podcast Normalizer (-16 LUFS)
+                  </button>
+                  <button class="btn-punk btn-purple btn-sm" id="podMicEnhancerBtn" data-i18n="btnPodMicEq">
+                    🎙️ PodMic Vocal Clarity EQ
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- One-Click Intro / Outro Stitcher Panel -->
+          <div class="punk-card stitcher-card mt-3">
+            <div class="card-header-bar bar-lime">
+              <h4 data-i18n="stitcherTitle">★ 1-CLICK EPISODE BUILDER (INTRO + VOICE + OUTRO)</h4>
+              <p class="card-sub-text" data-i18n="stitcherSubtitle">Automatically attach an opening theme, background ducking bed, and outro jingle to your edited voice recording.</p>
+            </div>
+
+            <div class="card-body">
+              <div class="stitcher-flex-grid">
+                <div class="stitch-box">
+                  <span class="stitch-step-badge">1. INTRO JINGLE</span>
+                  <select id="introSelect" class="punk-control mt-2">
+                    <option value="intro">🎺 Podcast Intro Jingle (3s)</option>
+                    <option value="sparkle">✨ Sparkle Theme (2s)</option>
+                    <option value="none">-- None / Already in Recording --</option>
+                  </select>
+                </div>
+
+                <div class="stitch-box main-box">
+                  <span class="stitch-step-badge">2. MAIN VOICE TRACK</span>
+                  <div class="text-xs text-muted mt-2" id="mainTrackStatusText">Current Audio in Waveform Editor</div>
+                </div>
+
+                <div class="stitch-box">
+                  <span class="stitch-step-badge">3. OUTRO JINGLE</span>
+                  <select id="outroSelect" class="punk-control mt-2">
+                    <option value="outro">🎵 Podcast Outro Chime (4s)</option>
+                    <option value="applause">👏 Applause + Cheer (3s)</option>
+                    <option value="none">-- None --</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-flex justify-between items-center mt-3 flex-wrap gap-2">
+                <div class="d-flex items-center gap-2">
+                  <input type="checkbox" id="addCrossfadeCheck" checked class="punk-checkbox">
+                  <label for="addCrossfadeCheck" class="text-sm font-bold cursor-pointer" data-i18n="lblCrossfade">Auto-Crossfade & Voice Smoothing</label>
+                </div>
+                <button class="btn-punk btn-pink btn-lg" id="buildFinalEpisodeBtn" data-i18n="btnBuildEpisode">
+                  🚀 RENDER MASTERED EPISODE
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 4: MASTER & COVER ART ================= -->
+      <section class="tab-content" id="exportTab">
+        <div class="zine-split">
+          <!-- Left: Pop Art Cover Generator -->
+          <div class="punk-card cover-card">
+            <div class="card-header-bar bar-pink">
+              <h3 data-i18n="coverArtTitle">★ EPISODE COVER ART CREATOR</h3>
+              <p class="card-sub-text" data-i18n="coverArtSubtitle">Create 3000x3000px standard podcast artwork for Spotify / Apple Podcasts.</p>
+            </div>
+
+            <div class="card-body">
+              <div class="cover-art-frame">
+                <canvas id="coverCanvas" width="600" height="600"></canvas>
+              </div>
+
+              <div class="cover-form-wrap mt-3">
+                <div class="punk-input-group">
+                  <label data-i18n="lblPodcastShowName">SHOW / SCHOOL NAME</label>
+                  <input type="text" id="coverShowNameInput" class="punk-control" value="CLASSROOM VOICES PODCAST">
+                </div>
+                <div class="punk-input-group">
+                  <label data-i18n="lblEpisodeNumber">EPISODE & SEASON</label>
+                  <input type="text" id="coverEpNumberInput" class="punk-control" value="SEASON 1 • EPISODE 01">
+                </div>
+                <div class="punk-input-group">
+                  <label data-i18n="lblCoverTheme">POP PALETTE THEME</label>
+                  <select id="coverThemeSelect" class="punk-control">
+                    <option value="cyber">⚡ Pop Punk Neon (Pink & Yellow)</option>
+                    <option value="studio">🎙️ Vintage Comic Pop (Amber & Black)</option>
+                    <option value="warm">🔥 Tangerine & Acid Lime</option>
+                    <option value="minimal">⚪ Monochrome Zine Press</option>
+                  </select>
+                </div>
+
+                <button class="btn-punk btn-yellow btn-sm w-100 mt-2" id="downloadCoverBtn" data-i18n="btnDownloadCover">
+                  🖼️ Download Cover Art (PNG)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Audio Master Export & Show Notes -->
+          <div class="punk-card master-export-card">
+            <div class="card-header-bar bar-lime">
+              <h3 data-i18n="exportFinalTitle">★ EXPORT MASTERED AUDIO & METADATA</h3>
+            </div>
+
+            <div class="card-body">
+              <!-- Broadcast Master Card -->
+              <div class="master-pop-box">
+                <div class="d-flex items-center gap-3">
+                  <span class="master-badge">🎧</span>
+                  <div>
+                    <h4 class="font-bold text-lg" data-i18n="masterReadyTitle">Broadcast Master Ready</h4>
+                    <p class="text-xs font-mono text-muted" data-i18n="masterSpecs">48.0 kHz • 24-bit Stereo • -16 LUFS Integrated</p>
+                  </div>
+                </div>
+                <button class="btn-punk btn-pink btn-lg w-100 mt-3" id="downloadMasterWavBtn" data-i18n="btnDownloadMasterWav">
+                  ⬇️ DOWNLOAD MASTER PODCAST (.WAV)
+                </button>
+              </div>
+
+              <!-- Auto Show Notes Generator -->
+              <div class="mt-4">
+                <label class="punk-label" data-i18n="lblSummaryNotes">EPISODE SHOW NOTES (AUTO-GENERATED)</label>
+                <textarea id="episodeSummaryText" class="punk-control font-mono text-sm" rows="6" placeholder="Show notes will automatically generate here..."></textarea>
+              </div>
+
+              <div class="d-flex gap-2 mt-3">
+                <button class="btn-punk btn-cyan btn-sm flex-1" id="copyShowNotesBtn" data-i18n="btnCopyShowNotes">📋 Copy Show Notes</button>
+                <button class="btn-punk btn-purple btn-sm flex-1" id="generateRssTagBtn" data-i18n="btnGenerateRss">🏷️ Generate RSS Tags</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 5: RØDECASTER SETUP GUIDE ================= -->
+      <section class="tab-content" id="guideTab">
+        <div class="punk-card guide-card-wrap">
+          <div class="card-header-bar bar-yellow">
+            <h2>★ RØDECASTER DUO + 2x RØDE PODMIC FIELD GUIDE ★</h2>
+            <p class="card-sub-text" data-i18n="guideHeroSubtitle">Quick setup manual and best practices for high-school & university classroom podcasting.</p>
+          </div>
+
+          <div class="card-body">
+            <div class="zine-guide-grid">
+              <!-- Card 1 -->
+              <div class="guide-box">
+                <div class="guide-box-num">01</div>
+                <h4 data-i18n="guidePodMicTitle">1. PodMic Channel Setup</h4>
+                <p data-i18n="guidePodMicText">
+                  PodMic is a dynamic microphone. On the RØDECaster Duo touch screen, tap <strong>Channel 1</strong> ➔ tap <strong>Microphone</strong> ➔ select <strong>"RØDE PodMic"</strong> from the preset list. The system automatically sets the optimal gain (+56dB to +58dB) and high-pass filter.
+                </p>
+                <div class="punk-tip">
+                  💡 <strong>Pro Tip:</strong> Have students speak 5-10 cm away from the mic at a 45° angle to prevent "P" and "B" popping sounds.
+                </div>
+              </div>
+
+              <!-- Card 2 -->
+              <div class="guide-box">
+                <div class="guide-box-num">02</div>
+                <h4 data-i18n="guideAphexTitle">2. APHEX Audio Processing</h4>
+                <p data-i18n="guideAphexText">Enable these 3 built-in processors in the Processing tab:</p>
+                <ul>
+                  <li><strong>Noise Gate:</strong> Cuts classroom background rumble when not speaking.</li>
+                  <li><strong>Aural Exciter:</strong> Enhances student vocal clarity and crispness.</li>
+                  <li><strong>Big Bottom:</strong> Gives warm, rich radio presence to voices.</li>
+                </ul>
+              </div>
+
+              <!-- Card 3 -->
+              <div class="guide-box">
+                <div class="guide-box-num">03</div>
+                <h4 data-i18n="guidePadsTitle">3. Loading Sounds to SMART Pads</h4>
+                <p data-i18n="guidePadsText">
+                  Connect RØDECaster Duo to your computer via USB-C and open the free <strong>RØDE Central</strong> app. Download your jingles/sounds from our SMART Soundboard tab and drag them directly onto the 6 colored virtual pads!
+                </p>
+              </div>
+
+              <!-- Card 4 -->
+              <div class="guide-box">
+                <div class="guide-box-num">04</div>
+                <h4 data-i18n="guideRecModesTitle">4. Recording to MicroSD vs PC</h4>
+                <p data-i18n="guideRecModesText">
+                  You can insert a <strong>MicroSD card (V30 / UHS-1)</strong> and press the physical REC button on the Duo. It saves a multitrack audio file (.WAV) containing separate tracks for Host 1, Host 2, and Soundboard. You can import that file directly into our Editor tab!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Comic On-Air Teleprompter Modal -->
+    <div class="teleprompter-modal" id="teleprompterModal">
+      <div class="tele-top-bar">
+        <div class="d-flex items-center gap-3">
+          <span class="live-rec-badge" data-i18n="onAirTag">● ON AIR</span>
+          <h2 class="tele-logo-title" data-i18n="teleprompterTitle">STUDENT ON-AIR TELEPROMPTER</h2>
+        </div>
+
+        <div class="d-flex items-center gap-3">
+          <div class="d-flex items-center gap-2">
+            <span class="text-xs font-bold" data-i18n="lblScrollSpeed">SPEED:</span>
+            <input type="range" id="teleSpeedSlider" min="0" max="5" step="1" value="2" class="punk-slider slider-sm">
+          </div>
+          <button class="btn-punk btn-white btn-sm" id="teleFontDecrease">A-</button>
+          <button class="btn-punk btn-white btn-sm" id="teleFontIncrease">A+</button>
+          <button class="btn-punk btn-yellow btn-sm" id="telePlayPauseBtn">▶ START AUTO-SCROLL</button>
+          <button class="btn-punk btn-pink btn-sm" id="closeTeleprompterBtn">✕ CLOSE</button>
+        </div>
+      </div>
+
+      <div class="teleprompter-scroll-view" id="teleScrollView">
+        <div class="teleprompter-content" id="teleContent">
+          <!-- Populated from current script with comic dialogue styles -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
