@@ -1,0 +1,16 @@
+{
+  "name": "VoxPunk Studio 🎙️⚡",
+  "short_name": "VoxPunk",
+  "description": "School Podcast Production & Audio Suite for RØDECaster Duo",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b0c10",
+  "theme_color": "#ff2a85",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23ff2a85'/><text y='70' x='50' font-size='55' text-anchor='middle'>🎙️</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

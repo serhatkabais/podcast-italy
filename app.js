@@ -98,7 +98,18 @@ const i18n = {
     // Prompter
     teleprompterTitle: "STUDENT ON-AIR TELEPROMPTER",
     onAirTag: "ON AIR",
-    lblScrollSpeed: "Scroll Speed:"
+    lblScrollSpeed: "Scroll Speed:",
+    btnMirror: "🪞 MIRROR",
+    btnFullscreen: "⛶ FULLSCREEN",
+
+    // New additions
+    btnSaveProject: "💾 Save Project (.voxpunk)",
+    btnLoadProject: "📂 Open Project",
+    lblAmbientDucking: "Lo-Fi Bed with Auto-Ducking (-12dB)",
+    lblCoverLogo: "School Logo / Sticker (PNG/JPG)",
+    btnDownloadMasterMp3: "⬇️ DOWNLOAD PODCAST (.MP3 - 192 KBPS)",
+    draftRestored: "Draft restored from autosave!",
+    projectLoaded: "Project loaded successfully!"
   },
 
   it: {
@@ -168,7 +179,7 @@ const i18n = {
     lblPodcastShowName: "Nome Podcast / Scuola",
     lblEpisodeNumber: "Episodio & Stagione",
     lblCoverTheme: "Tavolozza Colori",
-    btnDownloadCover: "🖼️ Scarica Copertina (PNG)",
+    btnDownloadCover: "🖼️ Scarica Copertina (3000x3000px PNG)",
     exportFinalTitle: "Esporta Audio Master & Metadati",
     masterReadyTitle: "Master Radiofonico Pronto",
     masterSpecs: "48.0 kHz • 24-bit Stereo • -16 LUFS Integrato",
@@ -192,7 +203,18 @@ const i18n = {
     // Prompter
     teleprompterTitle: "GOBBO ELETTRONICO PER STUDENTI (ON AIR)",
     onAirTag: "IN ONDA",
-    lblScrollSpeed: "Velocità Scorrimento:"
+    lblScrollSpeed: "Velocità Scorrimento:",
+    btnMirror: "🪞 SPECCHIO",
+    btnFullscreen: "⛶ SCHERMO INTERO",
+
+    // New additions
+    btnSaveProject: "💾 Salva Progetto (.voxpunk)",
+    btnLoadProject: "📂 Apri Progetto",
+    lblAmbientDucking: "Sottofondo Lo-Fi con Ducking (-12dB)",
+    lblCoverLogo: "Logo della Scuola / Adesivo (PNG/JPG)",
+    btnDownloadMasterMp3: "⬇️ SCARICA PODCAST (.MP3 - 192 KBPS)",
+    draftRestored: "Bozza ripristinata dal salvataggio automatico!",
+    projectLoaded: "Progetto caricato con successo!"
   }
 };
 
@@ -247,8 +269,8 @@ const soundLibrary = {
     icon: "🎺",
     color: "pad-green",
     duration: 3.5,
-    synthesize: (ctx, dest) => {
-      const now = ctx.currentTime;
+    synthesize: (ctx, dest, startTime = null) => {
+      const now = (startTime !== null && startTime !== undefined) ? startTime : ctx.currentTime;
       // Warm chord progression (F - A - C - E - G) with brassy timbre
       const freqs = [349.23, 440.00, 523.25, 659.25, 783.99];
       freqs.forEach((f, idx) => {
@@ -281,7 +303,8 @@ const soundLibrary = {
     icon: "👏",
     color: "pad-orange",
     duration: 3.0,
-    synthesize: (ctx, dest) => {
+    synthesize: (ctx, dest, startTime = null) => {
+      const now = (startTime !== null && startTime !== undefined) ? startTime : ctx.currentTime;
       const bufferSize = ctx.sampleRate * 3;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
@@ -297,15 +320,15 @@ const soundLibrary = {
       bandpass.Q.value = 1.2;
 
       const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.35, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 3.0);
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 3.0);
 
       noise.connect(bandpass);
       bandpass.connect(gain);
       gain.connect(dest);
 
-      noise.start();
-      noise.stop(ctx.currentTime + 3.0);
+      noise.start(now);
+      noise.stop(now + 3.0);
     }
   },
 
@@ -314,8 +337,8 @@ const soundLibrary = {
     icon: "✨",
     color: "pad-blue",
     duration: 2.0,
-    synthesize: (ctx, dest) => {
-      const now = ctx.currentTime;
+    synthesize: (ctx, dest, startTime = null) => {
+      const now = (startTime !== null && startTime !== undefined) ? startTime : ctx.currentTime;
       const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
       notes.forEach((freq, i) => {
         const osc = ctx.createOscillator();
@@ -340,8 +363,8 @@ const soundLibrary = {
     icon: "🥁",
     color: "pad-yellow",
     duration: 2.8,
-    synthesize: (ctx, dest) => {
-      const now = ctx.currentTime;
+    synthesize: (ctx, dest, startTime = null) => {
+      const now = (startTime !== null && startTime !== undefined) ? startTime : ctx.currentTime;
       // Rapid snare hits
       for (let i = 0; i < 28; i++) {
         const t = now + (i * 0.06);
@@ -379,8 +402,8 @@ const soundLibrary = {
     icon: "💡",
     color: "pad-purple",
     duration: 1.5,
-    synthesize: (ctx, dest) => {
-      const now = ctx.currentTime;
+    synthesize: (ctx, dest, startTime = null) => {
+      const now = (startTime !== null && startTime !== undefined) ? startTime : ctx.currentTime;
       const osc = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -410,8 +433,8 @@ const soundLibrary = {
     icon: "🎵",
     color: "pad-red",
     duration: 3.5,
-    synthesize: (ctx, dest) => {
-      const now = ctx.currentTime;
+    synthesize: (ctx, dest, startTime = null) => {
+      const now = (startTime !== null && startTime !== undefined) ? startTime : ctx.currentTime;
       // Descending resolving chords
       const sequence = [
         { f: 587.33, t: 0.0 }, // D5
@@ -449,14 +472,39 @@ function playPadSound(padIndex) {
   const ctx = getAudioContext();
   const dest = getPadMasterNode();
 
-  const padEl = document.querySelector(`.smart-pad[data-pad="${padIndex}"]`);
+  const padEl = document.querySelector(`.arcade-pad[data-pad="${padIndex}"], .smart-pad[data-pad="${padIndex}"]`);
   if (padEl) {
     padEl.classList.add('playing');
-    setTimeout(() => padEl.classList.remove('playing'), soundDef.duration * 1000);
+    setTimeout(() => padEl.classList.remove('playing'), Math.min(3000, soundDef.duration * 1000));
   }
 
-  soundDef.synthesize(ctx, dest);
+  soundDef.synthesize(ctx, dest, ctx.currentTime);
 }
+
+window.assignSoundToPad = function(soundKey, padIndexStr) {
+  if (padIndexStr === "") return;
+  const padIndex = parseInt(padIndexStr);
+  if (isNaN(padIndex) || padIndex < 0 || padIndex > 5) return;
+
+  const soundDef = soundLibrary[soundKey];
+  if (!soundDef) return;
+
+  assignedPadKeys[padIndex] = soundKey;
+
+  // Update pad UI title and emoji
+  const name = soundDef.name[currentLang] || soundDef.name.en;
+  const padNameEl = document.getElementById(`padName${padIndex}`);
+  if (padNameEl) padNameEl.textContent = name;
+
+  const padEl = document.querySelector(`.arcade-pad[data-pad="${padIndex}"]`);
+  if (padEl) {
+    const emojiEl = padEl.querySelector('.pad-emoji');
+    if (emojiEl) emojiEl.textContent = soundDef.icon || '🎵';
+  }
+
+  playPadSound(padIndex);
+  triggerAutosave();
+};
 
 // Generate WAV Blob for RØDECaster Duo download
 async function generateSoundAsWavBlob(soundKey) {
@@ -533,25 +581,35 @@ function toggleAmbientBed() {
 // Render SFX list
 function renderSfxList() {
   const container = document.getElementById('sfxListContainer');
+  if (!container) return;
   container.innerHTML = '';
 
   Object.keys(soundLibrary).forEach(key => {
     const sfx = soundLibrary[key];
-    const name = sfx.name[currentLang] || sfx.name.en;
+    const name = (typeof sfx.name === 'object') ? (sfx.name[currentLang] || sfx.name.en) : sfx.name;
 
     const div = document.createElement('div');
     div.className = 'sfx-item';
     div.innerHTML = `
       <div class="sfx-info">
-        <span style="font-size: 1.3rem;">${sfx.icon}</span>
+        <span style="font-size: 1.3rem;">${sfx.icon || '🎵'}</span>
         <div>
           <strong style="font-size: 0.85rem;">${name}</strong>
           <div class="text-xs text-muted">${sfx.duration}s • 48kHz WAV</div>
         </div>
       </div>
       <div class="sfx-actions">
-        <button class="btn btn-secondary btn-sm" onclick="testSound('${key}')">▶</button>
-        <button class="btn btn-secondary btn-sm" onclick="downloadCustomSound('${key}')">⬇</button>
+        <button title="Play sound" onclick="testSound('${key}')">▶</button>
+        <button title="Download for RØDECaster" onclick="downloadCustomSound('${key}')">⬇</button>
+        <select class="punk-select-mini" style="background:#000;color:var(--pop-yellow);border:2px solid #000;border-radius:6px;padding:3px;font-size:0.7rem;" onchange="assignSoundToPad('${key}', this.value); this.value='';">
+          <option value="">+ Pad...</option>
+          <option value="0">Pad 1</option>
+          <option value="1">Pad 2</option>
+          <option value="2">Pad 3</option>
+          <option value="3">Pad 4</option>
+          <option value="4">Pad 5</option>
+          <option value="5">Pad 6</option>
+        </select>
       </div>
     `;
     container.appendChild(div);
@@ -562,8 +620,48 @@ window.testSound = function(key) {
   const soundDef = soundLibrary[key];
   if (!soundDef) return;
   const ctx = getAudioContext();
-  soundDef.synthesize(ctx, getPadMasterNode());
+  soundDef.synthesize(ctx, getPadMasterNode(), ctx.currentTime);
 };
+
+// Handle Custom SFX File Upload
+function setupCustomSfxUpload() {
+  const input = document.getElementById('customSfxInput');
+  if (!input) return;
+
+  input.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const ctx = getAudioContext();
+      const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+
+      const customKey = `custom_${Date.now()}`;
+      const cleanName = file.name.replace(/\.[^/.]+$/, "");
+
+      soundLibrary[customKey] = {
+        name: { en: cleanName, it: cleanName },
+        icon: "🎧",
+        color: "pad-neon-blue",
+        duration: Math.round(audioBuffer.duration * 10) / 10,
+        buffer: audioBuffer,
+        synthesize: (c, dest, startTime = null) => {
+          const now = (startTime !== null && startTime !== undefined) ? startTime : c.currentTime;
+          const src = c.createBufferSource();
+          src.buffer = audioBuffer;
+          src.connect(dest);
+          src.start(now);
+        }
+      };
+
+      renderSfxList();
+      alert(currentLang === 'it' ? `✅ Suono "${cleanName}" importato con successo nella libreria SFX!` : `✅ Sound "${cleanName}" imported successfully to SFX Vault!`);
+    } catch (err) {
+      alert("Error loading custom audio file: " + err.message);
+    }
+  });
+}
 
 window.downloadCustomSound = function(key) {
   generateSoundAsWavBlob(key).then(blob => {
@@ -671,6 +769,7 @@ window.updateBlockText = function(index, text) {
   if (scriptBlocks[index]) {
     scriptBlocks[index].text = text;
     updateScriptStats();
+    triggerAutosave();
   }
 };
 
@@ -682,6 +781,7 @@ window.moveBlock = function(index, dir) {
     scriptBlocks[target] = temp;
     renderScriptBlocks();
     updateScriptStats();
+    triggerAutosave();
   }
 };
 
@@ -689,16 +789,18 @@ window.deleteBlock = function(index) {
   scriptBlocks.splice(index, 1);
   renderScriptBlocks();
   updateScriptStats();
+  triggerAutosave();
 };
 
 function addBlock(type, defaultText = '') {
   scriptBlocks.push({ type, text: defaultText });
   renderScriptBlocks();
   updateScriptStats();
+  triggerAutosave();
 
   // Scroll to bottom
   const container = document.getElementById('scriptBlocksContainer');
-  container.scrollTop = container.scrollHeight;
+  if (container) container.scrollTop = container.scrollHeight;
 }
 
 function updateScriptStats() {
@@ -714,15 +816,20 @@ function updateScriptStats() {
     }
   });
 
-  document.getElementById('scriptWordCount').textContent = totalWords;
-  document.getElementById('scriptCueCount').textContent = cuesCount;
+  const wordCountEl = document.getElementById('scriptWordCount');
+  const cueCountEl = document.getElementById('scriptCueCount');
+  const durEl = document.getElementById('scriptEstDuration');
+
+  if (wordCountEl) wordCountEl.textContent = totalWords;
+  if (cueCountEl) cueCountEl.textContent = cuesCount;
 
   // 130 words per minute speaking rate
   const totalSeconds = Math.round((totalWords / 130) * 60);
   const mins = Math.floor(totalSeconds / 60);
   const secs = totalSeconds % 60;
-  document.getElementById('scriptEstDuration').textContent = 
-    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  if (durEl) {
+    durEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
 
   // Auto-generate show notes summary
   updateShowNotesFromScript();
@@ -732,25 +839,168 @@ function updateShowNotesFromScript() {
   const epTitle = document.getElementById('epTitleInput').value || 'Classroom Podcast Episode';
   const spk1 = document.getElementById('speaker1Input').value || 'Host 1';
   const spk2 = document.getElementById('speaker2Input').value || 'Host 2';
+  const dur = document.getElementById('scriptEstDuration') ? document.getElementById('scriptEstDuration').textContent : '00:00';
 
   let notes = `🎙️ ${epTitle}\n`;
   notes += `👥 Hosts: ${spk1} & ${spk2}\n`;
-  notes += `⏱️ Duration: ~${document.getElementById('scriptEstDuration').textContent}\n\n`;
+  notes += `⏱️ Duration: ~${dur}\n\n`;
   notes += `📝 Episode Breakdown:\n`;
 
-  scriptBlocks.forEach((b, i) => {
+  scriptBlocks.forEach((b) => {
     if (b.type === 'speaker1' || b.type === 'speaker2') {
       const preview = b.text.substring(0, 60) + (b.text.length > 60 ? '...' : '');
       notes += `• [${b.type === 'speaker1' ? spk1 : spk2}]: "${preview}"\n`;
     }
   });
 
-  document.getElementById('episodeSummaryText').value = notes;
+  const summaryEl = document.getElementById('episodeSummaryText');
+  if (summaryEl) summaryEl.value = notes;
+}
+
+// LocalStorage Autosave
+let autosaveTimeout = null;
+function triggerAutosave() {
+  const badge = document.getElementById('autosaveBadge');
+  const text = document.getElementById('autosaveText');
+  if (badge && text) {
+    badge.classList.add('saving');
+    text.textContent = currentLang === 'it' ? 'SALVATAGGIO...' : 'SAVING...';
+  }
+
+  clearTimeout(autosaveTimeout);
+  autosaveTimeout = setTimeout(() => {
+    try {
+      const data = {
+        version: "2.0",
+        epTitle: document.getElementById('epTitleInput').value,
+        speaker1: document.getElementById('speaker1Input').value,
+        speaker2: document.getElementById('speaker2Input').value,
+        scriptBlocks: scriptBlocks,
+        assignedPadKeys: assignedPadKeys,
+        coverShowName: document.getElementById('coverShowNameInput').value,
+        coverEpNumber: document.getElementById('coverEpNumberInput').value,
+        coverTheme: document.getElementById('coverThemeSelect').value,
+        lastSaved: new Date().toISOString()
+      };
+      localStorage.setItem('voxpunk_studio_draft', JSON.stringify(data));
+      if (badge && text) {
+        badge.classList.remove('saving');
+        text.textContent = currentLang === 'it' ? 'SALVATO' : 'SAVED';
+      }
+    } catch (e) {
+      console.warn("Autosave error:", e);
+    }
+  }, 600);
+}
+
+function restoreAutosaveDraft() {
+  try {
+    const raw = localStorage.getItem('voxpunk_studio_draft');
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (data.epTitle !== undefined) document.getElementById('epTitleInput').value = data.epTitle;
+    if (data.speaker1 !== undefined) document.getElementById('speaker1Input').value = data.speaker1;
+    if (data.speaker2 !== undefined) document.getElementById('speaker2Input').value = data.speaker2;
+    if (Array.isArray(data.scriptBlocks) && data.scriptBlocks.length > 0) {
+      scriptBlocks = data.scriptBlocks;
+      renderScriptBlocks();
+      updateScriptStats();
+    }
+    if (Array.isArray(data.assignedPadKeys)) {
+      assignedPadKeys = data.assignedPadKeys;
+      assignedPadKeys.forEach((key, idx) => {
+        const def = soundLibrary[key];
+        if (def) {
+          const padNameEl = document.getElementById(`padName${idx}`);
+          if (padNameEl) padNameEl.textContent = def.name[currentLang] || def.name.en;
+        }
+      });
+    }
+    if (data.coverShowName) document.getElementById('coverShowNameInput').value = data.coverShowName;
+    if (data.coverEpNumber) document.getElementById('coverEpNumberInput').value = data.coverEpNumber;
+    if (data.coverTheme) document.getElementById('coverThemeSelect').value = data.coverTheme;
+
+    renderCoverArt();
+    updateSpeakerNames();
+    return true;
+  } catch (e) {
+    console.error("Draft restore error:", e);
+    return false;
+  }
+}
+
+// Project File (.voxpunk) Export and Import
+function saveProjectFile() {
+  const epTitle = (document.getElementById('epTitleInput').value || 'Podcast_Project').replace(/\s+/g, '_');
+  const projectData = {
+    appName: "VoxPunk Studio",
+    version: "2.0",
+    savedAt: new Date().toISOString(),
+    meta: {
+      title: document.getElementById('epTitleInput').value,
+      host1: document.getElementById('speaker1Input').value,
+      host2: document.getElementById('speaker2Input').value,
+      showName: document.getElementById('coverShowNameInput').value,
+      episodeSeason: document.getElementById('coverEpNumberInput').value,
+      theme: document.getElementById('coverThemeSelect').value
+    },
+    scriptBlocks: scriptBlocks,
+    assignedPadKeys: assignedPadKeys
+  };
+
+  const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${epTitle}.voxpunk`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function loadProjectFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.meta) {
+        if (data.meta.title) document.getElementById('epTitleInput').value = data.meta.title;
+        if (data.meta.host1) document.getElementById('speaker1Input').value = data.meta.host1;
+        if (data.meta.host2) document.getElementById('speaker2Input').value = data.meta.host2;
+        if (data.meta.showName) document.getElementById('coverShowNameInput').value = data.meta.showName;
+        if (data.meta.episodeSeason) document.getElementById('coverEpNumberInput').value = data.meta.episodeSeason;
+        if (data.meta.theme) document.getElementById('coverThemeSelect').value = data.meta.theme;
+      }
+      if (Array.isArray(data.scriptBlocks)) {
+        scriptBlocks = data.scriptBlocks;
+        renderScriptBlocks();
+        updateScriptStats();
+      }
+      if (Array.isArray(data.assignedPadKeys)) {
+        assignedPadKeys = data.assignedPadKeys;
+        assignedPadKeys.forEach((key, idx) => {
+          const def = soundLibrary[key];
+          if (def) {
+            const padNameEl = document.getElementById(`padName${idx}`);
+            if (padNameEl) padNameEl.textContent = def.name[currentLang] || def.name.en;
+          }
+        });
+      }
+      renderCoverArt();
+      updateSpeakerNames();
+      triggerAutosave();
+      alert(i18n[currentLang].projectLoaded || "Project loaded successfully!");
+    } catch (err) {
+      alert("Error reading project file: " + err.message);
+    }
+  };
+  reader.readAsText(file);
 }
 
 // Teleprompter Logic
 let teleScrollInterval = null;
 let teleScrolling = false;
+let teleScrollSpeed = 2;
+let isTeleMirrored = false;
 
 function openTeleprompter() {
   const modal = document.getElementById('teleprompterModal');
@@ -765,11 +1015,13 @@ function openTeleprompter() {
     div.className = 'tele-block';
 
     if (b.type === 'speaker1') {
-      div.innerHTML = `<div class="tele-speaker" style="color: var(--pad-green);">🎙️ ${spk1Name}</div><p>${b.text}</p>`;
+      div.innerHTML = `<div class="tele-speaker" style="color: var(--pop-lime);">🎙️ ${spk1Name}</div><p>${b.text}</p>`;
     } else if (b.type === 'speaker2') {
-      div.innerHTML = `<div class="tele-speaker" style="color: var(--pad-orange);">🎙️ ${spk2Name}</div><p>${b.text}</p>`;
+      div.innerHTML = `<div class="tele-speaker" style="color: var(--pop-orange);">🎙️ ${spk2Name}</div><p>${b.text}</p>`;
     } else if (b.type === 'cue') {
-      div.innerHTML = `<div class="tele-speaker" style="color: var(--pad-blue);">🔔 ${b.text}</div>`;
+      div.innerHTML = `<div class="tele-speaker" style="color: var(--pop-cyan);">🔔 ${b.text}</div>`;
+    } else if (b.type === 'note') {
+      div.innerHTML = `<div class="tele-speaker" style="color: var(--pop-yellow); font-size:0.95rem; opacity:0.85;">${b.text}</div>`;
     }
     content.appendChild(div);
   });
@@ -795,10 +1047,14 @@ function startTeleScroll() {
   teleScrolling = true;
   document.getElementById('telePlayPauseBtn').textContent = '⏸ Pause Auto-Scroll';
   const view = document.getElementById('teleScrollView');
-  const speed = parseInt(document.getElementById('teleSpeedSlider').value) || 2;
+  const sliderVal = parseInt(document.getElementById('teleSpeedSlider').value);
+  teleScrollSpeed = isNaN(sliderVal) ? 2 : sliderVal;
 
+  if (teleScrollInterval) clearInterval(teleScrollInterval);
   teleScrollInterval = setInterval(() => {
-    view.scrollTop += speed;
+    if (teleScrollSpeed > 0 && teleScrolling) {
+      view.scrollTop += teleScrollSpeed;
+    }
   }, 30);
 }
 
@@ -808,6 +1064,27 @@ function stopTeleScroll() {
   if (teleScrollInterval) {
     clearInterval(teleScrollInterval);
     teleScrollInterval = null;
+  }
+}
+
+function toggleTeleMirror() {
+  const view = document.getElementById('teleScrollView');
+  isTeleMirrored = !isTeleMirrored;
+  view.classList.toggle('tele-mirrored', isTeleMirrored);
+  const btn = document.getElementById('teleMirrorBtn');
+  if (btn) btn.classList.toggle('btn-pink', isTeleMirrored);
+}
+
+function toggleTeleFullscreen() {
+  const modal = document.getElementById('teleprompterModal');
+  if (!document.fullscreenElement) {
+    if (modal.requestFullscreen) {
+      modal.requestFullscreen();
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
   }
 }
 
@@ -1242,17 +1519,37 @@ if (navigator.mediaDevices) {
 let mediaRecorder = null;
 let recordedAudioChunks = [];
 let isMicRecording = false;
+let recStartTime = 0;
+let recTimerInterval = null;
+let vuMeterAnimFrame = null;
+let recStream = null;
 
 async function toggleMicRecording() {
   const btn = document.getElementById('recordMicBtn');
   const label = document.getElementById('recBtnLabel');
   const select = document.getElementById('audioDeviceSelect');
+  const timerDisplay = document.getElementById('recTimerDisplay');
+  const vuWrap = document.getElementById('vuMeterWrap');
+  const vuBar = document.getElementById('vuMeterBar');
 
   if (isMicRecording) {
-    mediaRecorder.stop();
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    if (recStream) {
+      recStream.getTracks().forEach(t => t.stop());
+      recStream = null;
+    }
     isMicRecording = false;
     btn.classList.remove('recording-active');
     label.textContent = i18n[currentLang].btnLiveMicRecord;
+
+    if (recTimerInterval) clearInterval(recTimerInterval);
+    if (vuMeterAnimFrame) cancelAnimationFrame(vuMeterAnimFrame);
+
+    if (timerDisplay) timerDisplay.style.display = 'none';
+    if (vuWrap) vuWrap.style.display = 'none';
+    if (vuBar) vuBar.style.width = '0%';
   } else {
     try {
       const deviceId = select.value !== 'default' ? { exact: select.value } : undefined;
@@ -1267,29 +1564,74 @@ async function toggleMicRecording() {
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      recStream = stream;
       recordedAudioChunks = [];
       mediaRecorder = new MediaRecorder(stream);
+
+      // Setup Live VU Meter using Web Audio Analyser
+      const ctx = getAudioContext();
+      const streamSource = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      streamSource.connect(analyser);
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function updateVuMeter() {
+        if (!isMicRecording) return;
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          sum += dataArray[i];
+        }
+        const avg = sum / bufferLength;
+        const pct = Math.min(100, Math.round((avg / 128) * 125));
+        if (vuBar) vuBar.style.width = `${pct}%`;
+        vuMeterAnimFrame = requestAnimationFrame(updateVuMeter);
+      }
 
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) recordedAudioChunks.push(e.data);
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(recordedAudioChunks, { type: 'audio/wav' });
+        const audioBlob = new Blob(recordedAudioChunks, { type: 'audio/webm' });
         const arrayBuffer = await audioBlob.arrayBuffer();
-        const ctx = getAudioContext();
-        currentAudioBuffer = await ctx.decodeAudioData(arrayBuffer);
-        document.getElementById('loadedTrackName').textContent = "🔴 RØDECaster_Live_Take.wav";
-        drawWaveform();
-        updatePlaybackDisplay(0);
-        // Prompt user
-        alert(currentLang === 'it' ? '✅ Traccia registrata e caricata direttamente nell\'editor!' : '✅ Recording captured and loaded directly into the editor!');
+        try {
+          currentAudioBuffer = await ctx.decodeAudioData(arrayBuffer);
+          document.getElementById('loadedTrackName').textContent = "🔴 RØDECaster_Live_Take.wav";
+          drawWaveform();
+          updatePlaybackDisplay(0);
+          alert(currentLang === 'it' ? '✅ Traccia registrata e caricata direttamente nell\'editor!' : '✅ Recording captured and loaded directly into the editor!');
+        } catch (decErr) {
+          alert("Error decoding recorded take: " + decErr.message);
+        }
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(100);
       isMicRecording = true;
       btn.classList.add('recording-active');
       label.textContent = i18n[currentLang].btnStopRecord;
+
+      // Start Recording Timer
+      recStartTime = Date.now();
+      if (timerDisplay) {
+        timerDisplay.textContent = '00:00';
+        timerDisplay.style.display = 'inline-block';
+      }
+      if (vuWrap) vuWrap.style.display = 'flex';
+
+      recTimerInterval = setInterval(() => {
+        const elapsedSec = Math.floor((Date.now() - recStartTime) / 1000);
+        const m = Math.floor(elapsedSec / 60);
+        const s = elapsedSec % 60;
+        if (timerDisplay) {
+          timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+      }, 500);
+
+      updateVuMeter();
     } catch (err) {
       alert("Microphone/USB access denied: " + err.message);
     }
@@ -1404,7 +1746,7 @@ document.getElementById('audioFileInput').addEventListener('change', async (e) =
   }
 });
 
-// Stitcher Engine: Build Mastered Episode
+// Stitcher Engine: Build Mastered Episode (Intro + Voice + Lo-Fi Ducking + Outro)
 async function buildMasteredEpisode() {
   if (!currentAudioBuffer) {
     alert(currentLang === 'it' ? 'Carica o registra prima una traccia vocale nell\'editor!' : 'Please load or record a voice track in the editor first!');
@@ -1414,6 +1756,7 @@ async function buildMasteredEpisode() {
   const introChoice = document.getElementById('introSelect').value;
   const outroChoice = document.getElementById('outroSelect').value;
   const crossfade = document.getElementById('addCrossfadeCheck').checked;
+  const addDucking = document.getElementById('addAmbientDuckingCheck') ? document.getElementById('addAmbientDuckingCheck').checked : false;
 
   const sampleRate = 48000;
   const introDef = soundLibrary[introChoice];
@@ -1424,49 +1767,83 @@ async function buildMasteredEpisode() {
   const voiceDur = currentAudioBuffer.duration;
 
   const fadeOverlap = crossfade ? 0.8 : 0.0;
-  const totalDuration = introDur + voiceDur + outroDur - (fadeOverlap * 2);
+  const voiceStartTime = Math.max(0, introDur - fadeOverlap);
+  const outroStartTime = Math.max(0, voiceStartTime + voiceDur - (outroDef ? fadeOverlap : 0));
+  const totalDuration = Math.max(voiceStartTime + voiceDur, outroStartTime + outroDur);
 
   const offlineCtx = new OfflineAudioContext(2, Math.ceil(sampleRate * Math.max(1, totalDuration)), sampleRate);
 
-  // 1. Synthesize Intro
+  // 1. Synthesize Intro at time 0
   if (introDef) {
-    introDef.synthesize(offlineCtx, offlineCtx.destination);
+    introDef.synthesize(offlineCtx, offlineCtx.destination, 0);
   }
 
-  // 2. Play Voice Buffer
+  // 2. Play Voice Buffer with Crossfade Ramping
   const voiceSrc = offlineCtx.createBufferSource();
   voiceSrc.buffer = currentAudioBuffer;
-
   const voiceGain = offlineCtx.createGain();
-  const voiceStartTime = Math.max(0, introDur - fadeOverlap);
 
   if (crossfade && introDef) {
     voiceGain.gain.setValueAtTime(0, voiceStartTime);
     voiceGain.gain.linearRampToValueAtTime(1.0, voiceStartTime + fadeOverlap);
+  } else {
+    voiceGain.gain.setValueAtTime(1.0, voiceStartTime);
+  }
+
+  if (crossfade && outroDef) {
+    const fadeOutStart = outroStartTime;
+    voiceGain.gain.setValueAtTime(1.0, fadeOutStart);
+    voiceGain.gain.linearRampToValueAtTime(0.001, fadeOutStart + fadeOverlap);
   }
 
   voiceSrc.connect(voiceGain);
   voiceGain.connect(offlineCtx.destination);
   voiceSrc.start(voiceStartTime);
 
-  // 3. Synthesize Outro
-  if (outroDef) {
-    const outroStartTime = voiceStartTime + voiceDur - fadeOverlap;
-    const outroGain = offlineCtx.createGain();
-    outroGain.connect(offlineCtx.destination);
-    // Render outro delayed
-    setTimeout(() => {}, 0);
+  // 3. Optional Lo-Fi Ambient Bed with Auto-Ducking (-12dB)
+  if (addDucking) {
+    const duckGain = offlineCtx.createGain();
+    duckGain.connect(offlineCtx.destination);
+
+    duckGain.gain.setValueAtTime(0.09, 0);
+    duckGain.gain.linearRampToValueAtTime(0.02, voiceStartTime + 0.4);
+    duckGain.gain.setValueAtTime(0.02, outroStartTime);
+    duckGain.gain.linearRampToValueAtTime(0.09, outroStartTime + 0.6);
+    duckGain.gain.setValueAtTime(0.09, totalDuration - 0.4);
+    duckGain.gain.exponentialRampToValueAtTime(0.001, totalDuration);
+
+    const bedFreqs = [130.81, 196.00, 246.94, 293.66, 329.63];
+    bedFreqs.forEach(f => {
+      const osc = offlineCtx.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(f, 0);
+      const lp = offlineCtx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.setValueAtTime(550, 0);
+
+      osc.connect(lp);
+      lp.connect(duckGain);
+      osc.start(0);
+      osc.stop(totalDuration);
+    });
   }
 
+  // 4. Synthesize Outro (Fixed: scheduled at outroStartTime)
+  if (outroDef) {
+    outroDef.synthesize(offlineCtx, offlineCtx.destination, outroStartTime);
+  }
+
+  saveUndoState();
   const masteredBuffer = await offlineCtx.startRendering();
   currentAudioBuffer = masteredBuffer;
+  document.getElementById('loadedTrackName').textContent = "🚀 Mastered_Podcast_Take.wav";
   drawWaveform();
   updatePlaybackDisplay(0);
 
-  alert(currentLang === 'it' ? '🚀 Episodio assemblato e masterizzato con successo!' : '🚀 Mastered episode rendered successfully!');
+  alert(currentLang === 'it' ? '🚀 Episodio assemblato con sigle, ducking e masterizzato con successo!' : '🚀 Mastered episode with intro, voice, ducking, and outro rendered successfully!');
 }
 
-// Convert AudioBuffer to 24-bit/16-bit PCM WAV Blob
+// Convert AudioBuffer to 16-bit PCM WAV Blob
 function bufferToWav(abuffer) {
   const numOfChan = abuffer.numberOfChannels;
   const length = abuffer.length * numOfChan * 2 + 44;
@@ -1520,6 +1897,53 @@ function bufferToWav(abuffer) {
   }
 }
 
+// Convert AudioBuffer to MP3 Blob using vendored lamejs
+function bufferToMp3(abuffer, kbps = 192) {
+  if (typeof lamejs === 'undefined') {
+    throw new Error("MP3 encoder (lamejs) is not available.");
+  }
+
+  const channels = abuffer.numberOfChannels;
+  const sampleRate = abuffer.sampleRate;
+  const mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, kbps);
+  const mp3Data = [];
+
+  const left = abuffer.getChannelData(0);
+  const right = channels > 1 ? abuffer.getChannelData(1) : left;
+
+  const leftInt16 = new Int16Array(left.length);
+  const rightInt16 = new Int16Array(right.length);
+
+  for (let i = 0; i < left.length; i++) {
+    const sL = Math.max(-1, Math.min(1, left[i]));
+    leftInt16[i] = sL < 0 ? sL * 0x8000 : sL * 0x7FFF;
+    const sR = Math.max(-1, Math.min(1, right[i]));
+    rightInt16[i] = sR < 0 ? sR * 0x8000 : sR * 0x7FFF;
+  }
+
+  const sampleBlockSize = 1152;
+  for (let i = 0; i < left.length; i += sampleBlockSize) {
+    const leftChunk = leftInt16.subarray(i, i + sampleBlockSize);
+    let mp3buf;
+    if (channels === 1) {
+      mp3buf = mp3encoder.encodeBuffer(leftChunk);
+    } else {
+      const rightChunk = rightInt16.subarray(i, i + sampleBlockSize);
+      mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk);
+    }
+    if (mp3buf.length > 0) {
+      mp3Data.push(mp3buf);
+    }
+  }
+
+  const endBuf = mp3encoder.flush();
+  if (endBuf.length > 0) {
+    mp3Data.push(endBuf);
+  }
+
+  return new Blob(mp3Data, { type: 'audio/mp3' });
+}
+
 // Download Mastered WAV
 function downloadMasterWav() {
   if (!currentAudioBuffer) {
@@ -1537,23 +1961,38 @@ function downloadMasterWav() {
   URL.revokeObjectURL(url);
 }
 
-// ==========================================
-// 5. POP-ART COVER ART GENERATOR
-// ==========================================
-function renderCoverArt() {
-  const coverCanvas = document.getElementById('coverCanvas');
-  const ctx = coverCanvas.getContext('2d');
-  const size = coverCanvas.width;
+// Download Mastered MP3
+function downloadMasterMp3() {
+  if (!currentAudioBuffer) {
+    alert(currentLang === 'it' ? 'Nessun audio masterizzato disponibile da scaricare!' : 'No mastered audio available to download!');
+    return;
+  }
 
-  const showName = document.getElementById('coverShowNameInput').value || 'CLASSROOM PODCAST';
-  const epTitle = document.getElementById('epTitleInput').value || 'EPISODE 01';
-  const epNumber = document.getElementById('coverEpNumberInput').value || 'SEASON 1';
-  const theme = document.getElementById('coverThemeSelect').value;
+  try {
+    const mp3Blob = bufferToMp3(currentAudioBuffer, 192);
+    const url = URL.createObjectURL(mp3Blob);
+    const a = document.createElement('a');
+    const epTitle = (document.getElementById('epTitleInput').value || 'Episode_Master').replace(/\s+/g, '_');
+    a.href = url;
+    a.download = `${epTitle}_RODECaster_Master_192k.mp3`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("MP3 Encoding Error: " + err.message);
+  }
+}
+
+// ==========================================
+// 5. POP-ART COVER ART GENERATOR (TRUE 3000x3000px)
+// ==========================================
+let customCoverLogoImg = null;
+
+function drawCoverArtwork(ctx, size, showName, epTitle, epNumber, theme, logoImg) {
+  const scale = size / 600;
 
   // Pop-Art Palettes
   let bgGrad1 = "#ffe600"; // Electric Lemon
   let bgGrad2 = "#ff2a85"; // Hot Pink
-  let textColor = "#000000";
   let boxColor = "#00f0ff"; // Cyan
 
   if (theme === 'studio') {
@@ -1568,44 +2007,43 @@ function renderCoverArt() {
     bgGrad1 = "#ffffff";
     bgGrad2 = "#e2e8f0";
     boxColor = "#000000";
-    textColor = "#ffffff";
   }
 
-  // Draw Vibrant Background
+  // 1. Draw Vibrant Background
   const grad = ctx.createLinearGradient(0, 0, size, size);
   grad.addColorStop(0, bgGrad1);
   grad.addColorStop(1, bgGrad2);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, size, size);
 
-  // Pop-Art Halftone Dot Matrix Pattern
+  // 2. Pop-Art Halftone Dot Matrix Pattern
   ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
-  const dotSpacing = 24;
+  const dotSpacing = 24 * scale;
+  const dotRadius = 3.5 * scale;
   for (let x = 0; x < size; x += dotSpacing) {
     for (let y = 0; y < size; y += dotSpacing) {
       ctx.beginPath();
-      ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+      ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 
-  // Outer Chunky Comic Border
+  // 3. Outer Chunky Comic Border
   ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 12;
-  ctx.strokeRect(20, 20, size - 40, size - 40);
+  ctx.lineWidth = 12 * scale;
+  ctx.strokeRect(20 * scale, 20 * scale, size - 40 * scale, size - 40 * scale);
 
-  // Big Sunburst / Star Sticker behind Icon
+  // 4. Big Sunburst / Star Sticker behind Icon/Logo
   ctx.save();
-  ctx.translate(size / 2, size / 2 - 50);
+  ctx.translate(size / 2, size / 2 - 50 * scale);
   ctx.fillStyle = boxColor;
   ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 6 * scale;
 
-  // Starburst polygon
   ctx.beginPath();
   const spikes = 12;
-  const outerR = 110;
-  const innerR = 75;
+  const outerR = 110 * scale;
+  const innerR = 75 * scale;
   for (let i = 0; i < spikes * 2; i++) {
     const r = (i % 2 === 0) ? outerR : innerR;
     const angle = (i * Math.PI) / spikes;
@@ -1618,52 +2056,95 @@ function renderCoverArt() {
   ctx.fill();
   ctx.stroke();
 
-  // Microphone Emoji in Center
-  ctx.font = "bold 64px sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("🎙️", 0, 22);
+  // Custom Logo or Mic Emoji in Center
+  if (logoImg) {
+    const logoW = 120 * scale;
+    const logoH = 120 * scale;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(0, 0, 60 * scale, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(logoImg, -logoW / 2, -logoH / 2, logoW, logoH);
+    ctx.restore();
+    ctx.beginPath();
+    ctx.arc(0, 0, 60 * scale, 0, Math.PI * 2);
+    ctx.lineWidth = 4 * scale;
+    ctx.strokeStyle = "#000000";
+    ctx.stroke();
+  } else {
+    ctx.font = `bold ${64 * scale}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText("🎙️", 0, 22 * scale);
+  }
   ctx.restore();
 
-  // Show Title in Chunky Comic Bubble Box
+  // 5. Show Title in Chunky Comic Bubble Box
   ctx.save();
-  ctx.translate(size / 2, size / 2 + 100);
+  ctx.translate(size / 2, size / 2 + 100 * scale);
   ctx.fillStyle = "#ffffff";
   ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 6;
-  ctx.fillRect(-240, -32, 480, 64);
-  ctx.strokeRect(-240, -32, 480, 64);
+  ctx.lineWidth = 6 * scale;
+  ctx.fillRect(-240 * scale, -32 * scale, 480 * scale, 64 * scale);
+  ctx.strokeRect(-240 * scale, -32 * scale, 480 * scale, 64 * scale);
 
   ctx.fillStyle = "#000000";
-  ctx.font = "800 28px 'Righteous', 'Space Grotesk', sans-serif";
+  ctx.font = `800 ${Math.round(28 * scale)}px 'Righteous', 'Space Grotesk', sans-serif`;
   ctx.textAlign = "center";
-  ctx.fillText(showName.toUpperCase(), 0, 10);
+  ctx.fillText(showName.toUpperCase(), 0, 10 * scale);
   ctx.restore();
 
-  // Episode Season Ribbon
+  // 6. Episode Season Ribbon
   ctx.save();
-  ctx.translate(size / 2, size / 2 + 165);
+  ctx.translate(size / 2, size / 2 + 165 * scale);
   ctx.fillStyle = "#000000";
-  ctx.fillRect(-180, -20, 360, 40);
+  ctx.fillRect(-180 * scale, -20 * scale, 360 * scale, 40 * scale);
 
   ctx.fillStyle = "#ffe600";
-  ctx.font = "800 18px 'JetBrains Mono', monospace";
+  ctx.font = `800 ${Math.round(18 * scale)}px 'JetBrains Mono', monospace`;
   ctx.textAlign = "center";
-  ctx.fillText(epNumber.toUpperCase(), 0, 8);
+  ctx.fillText(epNumber.toUpperCase(), 0, 8 * scale);
   ctx.restore();
 
-  // Episode Title
+  // 7. Episode Title
   ctx.fillStyle = "#000000";
-  ctx.font = "800 24px 'Fredoka', sans-serif";
+  ctx.font = `800 ${Math.round(24 * scale)}px 'Fredoka', sans-serif`;
   ctx.textAlign = "center";
-  ctx.fillText(`"${epTitle}"`, size / 2, size / 2 + 225);
+  ctx.fillText(`"${epTitle}"`, size / 2, size / 2 + 225 * scale);
+}
+
+function renderCoverArt() {
+  const coverCanvas = document.getElementById('coverCanvas');
+  if (!coverCanvas) return;
+  const ctx = coverCanvas.getContext('2d');
+  const size = coverCanvas.width;
+
+  const showName = document.getElementById('coverShowNameInput').value || 'CLASSROOM PODCAST';
+  const epTitle = document.getElementById('epTitleInput').value || 'EPISODE 01';
+  const epNumber = document.getElementById('coverEpNumberInput').value || 'SEASON 1';
+  const theme = document.getElementById('coverThemeSelect').value;
+
+  drawCoverArtwork(ctx, size, showName, epTitle, epNumber, theme, customCoverLogoImg);
 }
 
 function downloadCoverArt() {
-  const coverCanvas = document.getElementById('coverCanvas');
-  const url = coverCanvas.toDataURL('image/png');
+  const exportSize = 3000;
+  const offscreen = document.createElement('canvas');
+  offscreen.width = exportSize;
+  offscreen.height = exportSize;
+  const offCtx = offscreen.getContext('2d');
+
+  const showName = document.getElementById('coverShowNameInput').value || 'CLASSROOM PODCAST';
+  const epTitle = document.getElementById('epTitleInput').value || 'EPISODE 01';
+  const epNumber = document.getElementById('coverEpNumberInput').value || 'SEASON 1';
+  const theme = document.getElementById('coverThemeSelect').value;
+
+  drawCoverArtwork(offCtx, exportSize, showName, epTitle, epNumber, theme, customCoverLogoImg);
+
+  const url = offscreen.toDataURL('image/png');
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'podcast_pop_punk_cover_3000x3000.png';
+  const cleanTitle = (epTitle || 'Podcast_Cover').replace(/\s+/g, '_');
+  a.download = `${cleanTitle}_PopPunk_Cover_3000x3000.png`;
   a.click();
 }
 
@@ -1844,13 +2325,82 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   setupWaveformInteractions();
+  setupCustomSfxUpload();
 
-  // 8. Cover Art & Master
-  document.getElementById('coverShowNameInput').addEventListener('input', renderCoverArt);
-  document.getElementById('coverEpNumberInput').addEventListener('input', renderCoverArt);
-  document.getElementById('coverThemeSelect').addEventListener('change', renderCoverArt);
+  // 8. Project Save / Load
+  const saveProjBtn = document.getElementById('saveProjectBtn');
+  if (saveProjBtn) saveProjBtn.addEventListener('click', saveProjectFile);
+
+  const loadProjInput = document.getElementById('loadProjectInput');
+  if (loadProjInput) {
+    loadProjInput.addEventListener('change', (e) => {
+      const f = e.target.files[0];
+      if (f) loadProjectFile(f);
+      e.target.value = '';
+    });
+  }
+
+  // 9. Teleprompter Controls (Mirror & Fullscreen)
+  const mirrorBtn = document.getElementById('teleMirrorBtn');
+  if (mirrorBtn) mirrorBtn.addEventListener('click', toggleTeleMirror);
+
+  const fullBtn = document.getElementById('teleFullscreenBtn');
+  if (fullBtn) fullBtn.addEventListener('click', toggleTeleFullscreen);
+
+  const speedSlider = document.getElementById('teleSpeedSlider');
+  if (speedSlider) {
+    speedSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      teleScrollSpeed = isNaN(val) ? 2 : val;
+    });
+  }
+
+  // 10. Cover Art & Master
+  document.getElementById('coverShowNameInput').addEventListener('input', () => {
+    renderCoverArt();
+    triggerAutosave();
+  });
+  document.getElementById('coverEpNumberInput').addEventListener('input', () => {
+    renderCoverArt();
+    triggerAutosave();
+  });
+  document.getElementById('coverThemeSelect').addEventListener('change', () => {
+    renderCoverArt();
+    triggerAutosave();
+  });
   document.getElementById('downloadCoverBtn').addEventListener('click', downloadCoverArt);
   document.getElementById('downloadMasterWavBtn').addEventListener('click', downloadMasterWav);
+
+  const mp3Btn = document.getElementById('downloadMasterMp3Btn');
+  if (mp3Btn) mp3Btn.addEventListener('click', downloadMasterMp3);
+
+  // Logo file upload
+  const logoInput = document.getElementById('coverLogoInput');
+  if (logoInput) {
+    logoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          customCoverLogoImg = img;
+          renderCoverArt();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const clearLogoBtn = document.getElementById('clearLogoBtn');
+  if (clearLogoBtn) {
+    clearLogoBtn.addEventListener('click', () => {
+      customCoverLogoImg = null;
+      if (logoInput) logoInput.value = '';
+      renderCoverArt();
+    });
+  }
 
   document.getElementById('copyShowNotesBtn').addEventListener('click', () => {
     const text = document.getElementById('episodeSummaryText').value;
@@ -1865,16 +2415,54 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('episodeSummaryText').value = rssXml;
   });
 
-  // Spacebar Play/Pause Shortcut
+  // 11. Context-Aware Keyboard Shortcuts (Space, Esc, 1-6 Pads)
   window.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') {
+    if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT' || e.target.isContentEditable) {
+      return;
+    }
+
+    const prompterModal = document.getElementById('teleprompterModal');
+    const isPrompterActive = prompterModal && prompterModal.classList.contains('active');
+
+    // Escape closes modal
+    if (e.code === 'Escape') {
+      if (isPrompterActive) closeTeleprompter();
+      return;
+    }
+
+    // Spacebar toggles playback or prompter
+    if (e.code === 'Space') {
       e.preventDefault();
-      togglePlayAudio();
+      if (isPrompterActive) {
+        toggleTeleScroll();
+      } else {
+        togglePlayAudio();
+      }
+      return;
+    }
+
+    // Number keys 1-6 trigger SMART Pads
+    const num = parseInt(e.key);
+    if (!isNaN(num) && num >= 1 && num <= 6 && !isPrompterActive) {
+      e.preventDefault();
+      playPadSound(num - 1);
     }
   });
 
-  // Initial Load
-  loadScriptTemplate(eduTemplateEN);
+  // 12. PWA Service Worker Registration
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch((err) => {
+      console.log("Service worker registration skipped:", err);
+    });
+  }
+
+  // 13. Initial Load: Restore Autosaved Draft or Template
+  const restored = restoreAutosaveDraft();
+  if (!restored) {
+    loadScriptTemplate(eduTemplateEN);
+  } else {
+    console.log("Autosave draft restored successfully.");
+  }
   renderSfxList();
   renderCoverArt();
   drawWaveform();

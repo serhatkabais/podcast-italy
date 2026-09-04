@@ -4,11 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VOX PUNK STUDIO ⚡ RØDECaster Podcast Zine</title>
+  <meta name="theme-color" content="#ff2a85">
+  <link rel="manifest" href="manifest.json">
   <!-- Google Fonts: Space Grotesk, Righteous, Fredoka, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@700;800&family=Righteous&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <!-- Offline-ready MP3 Encoder -->
+  <script src="lib/lame.min.js"></script>
 </head>
 <body class="punk-theme">
 
@@ -41,6 +45,9 @@
 
       <!-- Top Right Controls -->
       <div class="header-right-tools">
+        <!-- Autosave Indicator -->
+        <span id="autosaveBadge" class="autosave-pill" title="Automatic Local Storage Autosave">💾 <span id="autosaveText">SAVED</span></span>
+
         <!-- Language Switcher Pills -->
         <div class="lang-pills">
           <button class="lang-pill active" data-lang="en" id="langEn">🇬🇧 EN</button>
@@ -141,10 +148,17 @@
                 </div>
               </div>
 
-              <!-- Export Print Actions -->
+              <!-- Export Print & Project Actions -->
               <div class="mt-3 d-flex gap-2">
                 <button class="btn-punk btn-cyan btn-sm flex-1" id="printScriptBtn" data-i18n="btnPrintScript">🖨️ Print Sheet</button>
-                <button class="btn-punk btn-lime btn-sm flex-1" id="exportScriptTxtBtn" data-i18n="btnExportText">📄 Save (.txt)</button>
+                <button class="btn-punk btn-white btn-sm flex-1" id="exportScriptTxtBtn" data-i18n="btnExportText">📄 Save (.txt)</button>
+              </div>
+              <div class="mt-2 d-flex gap-2">
+                <button class="btn-punk btn-lime btn-sm flex-1" id="saveProjectBtn" data-i18n="btnSaveProject">💾 Save Project (.voxpunk)</button>
+                <label class="btn-punk btn-yellow btn-sm flex-1 text-center cursor-pointer mb-0">
+                  <input type="file" id="loadProjectInput" accept=".voxpunk,.json" style="display:none;">
+                  <span data-i18n="btnLoadProject">📂 Open Project</span>
+                </label>
               </div>
             </div>
           </div>
@@ -195,6 +209,7 @@
               <div class="smart-pads-arcade">
                 <!-- Pad 1 -->
                 <div class="arcade-pad pad-neon-green" data-pad="0">
+                  <span class="pad-key-hint">KEY 1</span>
                   <div class="pad-badge">PAD 01</div>
                   <div class="pad-emoji">🎺</div>
                   <div class="pad-title" id="padName0">Podcast Intro Jingle</div>
@@ -206,6 +221,7 @@
 
                 <!-- Pad 2 -->
                 <div class="arcade-pad pad-neon-orange" data-pad="1">
+                  <span class="pad-key-hint">KEY 2</span>
                   <div class="pad-badge">PAD 02</div>
                   <div class="pad-emoji">👏</div>
                   <div class="pad-title" id="padName1">Crowd Applause</div>
@@ -217,6 +233,7 @@
 
                 <!-- Pad 3 -->
                 <div class="arcade-pad pad-neon-blue" data-pad="2">
+                  <span class="pad-key-hint">KEY 3</span>
                   <div class="pad-badge">PAD 03</div>
                   <div class="pad-emoji">✨</div>
                   <div class="pad-title" id="padName2">Sparkle Transition</div>
@@ -228,6 +245,7 @@
 
                 <!-- Pad 4 -->
                 <div class="arcade-pad pad-neon-yellow" data-pad="3">
+                  <span class="pad-key-hint">KEY 4</span>
                   <div class="pad-badge">PAD 04</div>
                   <div class="pad-emoji">🥁</div>
                   <div class="pad-title" id="padName3">Drum Roll & Cymbal</div>
@@ -239,6 +257,7 @@
 
                 <!-- Pad 5 -->
                 <div class="arcade-pad pad-neon-purple" data-pad="4">
+                  <span class="pad-key-hint">KEY 5</span>
                   <div class="pad-badge">PAD 05</div>
                   <div class="pad-emoji">💡</div>
                   <div class="pad-title" id="padName4">Idea Ding / Chime</div>
@@ -250,6 +269,7 @@
 
                 <!-- Pad 6 -->
                 <div class="arcade-pad pad-neon-red" data-pad="5">
+                  <span class="pad-key-hint">KEY 6</span>
                   <div class="pad-badge">PAD 06</div>
                   <div class="pad-emoji">🎵</div>
                   <div class="pad-title" id="padName5">Podcast Outro Jingle</div>
@@ -330,6 +350,10 @@
                     <span class="rec-dot"></span>
                     <span id="recBtnLabel" data-i18n="btnLiveMicRecord">Direct USB Record</span>
                   </button>
+                  <span id="recTimerDisplay" class="rec-timer font-mono" style="display:none;">00:00</span>
+                  <div id="vuMeterWrap" class="vu-meter-wrap" style="display:none;" title="Input Level (VU Meter)">
+                    <div id="vuMeterBar" class="vu-meter-bar"></div>
+                  </div>
                 </div>
 
                 <!-- 1-Click SD Card Sync -->
@@ -453,9 +477,15 @@
               </div>
 
               <div class="d-flex justify-between items-center mt-3 flex-wrap gap-2">
-                <div class="d-flex items-center gap-2">
-                  <input type="checkbox" id="addCrossfadeCheck" checked class="punk-checkbox">
-                  <label for="addCrossfadeCheck" class="text-sm font-bold cursor-pointer" data-i18n="lblCrossfade">Auto-Crossfade & Voice Smoothing</label>
+                <div class="d-flex items-center gap-3 flex-wrap">
+                  <div class="d-flex items-center gap-2">
+                    <input type="checkbox" id="addCrossfadeCheck" checked class="punk-checkbox">
+                    <label for="addCrossfadeCheck" class="text-sm font-bold cursor-pointer" data-i18n="lblCrossfade">Auto-Crossfade & Voice Smoothing</label>
+                  </div>
+                  <div class="d-flex items-center gap-2">
+                    <input type="checkbox" id="addAmbientDuckingCheck" checked class="punk-checkbox">
+                    <label for="addAmbientDuckingCheck" class="text-sm font-bold cursor-pointer" data-i18n="lblAmbientDucking">Lo-Fi Bed with Auto-Ducking (-12dB)</label>
+                  </div>
                 </div>
                 <button class="btn-punk btn-pink btn-lg" id="buildFinalEpisodeBtn" data-i18n="btnBuildEpisode">
                   🚀 RENDER MASTERED EPISODE
@@ -499,9 +529,16 @@
                     <option value="minimal">⚪ Monochrome Zine Press</option>
                   </select>
                 </div>
+                <div class="punk-input-group">
+                  <label data-i18n="lblCoverLogo">SCHOOL LOGO / STICKER (PNG/JPG)</label>
+                  <div class="d-flex gap-2 items-center">
+                    <input type="file" id="coverLogoInput" accept="image/*" class="punk-control file-input-compact flex-1">
+                    <button class="btn-punk btn-white btn-sm" id="clearLogoBtn" type="button" title="Remove custom logo">✕</button>
+                  </div>
+                </div>
 
                 <button class="btn-punk btn-yellow btn-sm w-100 mt-2" id="downloadCoverBtn" data-i18n="btnDownloadCover">
-                  🖼️ Download Cover Art (PNG)
+                  🖼️ Download Cover Art (3000x3000px PNG)
                 </button>
               </div>
             </div>
@@ -525,6 +562,9 @@
                 </div>
                 <button class="btn-punk btn-pink btn-lg w-100 mt-3" id="downloadMasterWavBtn" data-i18n="btnDownloadMasterWav">
                   ⬇️ DOWNLOAD MASTER PODCAST (.WAV)
+                </button>
+                <button class="btn-punk btn-lime btn-lg w-100 mt-2" id="downloadMasterMp3Btn" data-i18n="btnDownloadMasterMp3">
+                  ⬇️ DOWNLOAD PODCAST (.MP3 - 192 KBPS)
                 </button>
               </div>
 
@@ -609,13 +649,15 @@
           <h2 class="tele-logo-title" data-i18n="teleprompterTitle">STUDENT ON-AIR TELEPROMPTER</h2>
         </div>
 
-        <div class="d-flex items-center gap-3">
+        <div class="d-flex items-center gap-2 flex-wrap">
           <div class="d-flex items-center gap-2">
             <span class="text-xs font-bold" data-i18n="lblScrollSpeed">SPEED:</span>
             <input type="range" id="teleSpeedSlider" min="0" max="5" step="1" value="2" class="punk-slider slider-sm">
           </div>
-          <button class="btn-punk btn-white btn-sm" id="teleFontDecrease">A-</button>
-          <button class="btn-punk btn-white btn-sm" id="teleFontIncrease">A+</button>
+          <button class="btn-punk btn-white btn-sm" id="teleFontDecrease" title="Smaller text">A-</button>
+          <button class="btn-punk btn-white btn-sm" id="teleFontIncrease" title="Larger text">A+</button>
+          <button class="btn-punk btn-cyan btn-sm" id="teleMirrorBtn" title="Mirror text horizontally for prompter glass" data-i18n="btnMirror">🪞 MIRROR</button>
+          <button class="btn-punk btn-purple btn-sm" id="teleFullscreenBtn" title="Toggle Fullscreen" data-i18n="btnFullscreen">⛶ FULLSCREEN</button>
           <button class="btn-punk btn-yellow btn-sm" id="telePlayPauseBtn">▶ START AUTO-SCROLL</button>
           <button class="btn-punk btn-pink btn-sm" id="closeTeleprompterBtn">✕ CLOSE</button>
         </div>
